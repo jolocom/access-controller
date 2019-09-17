@@ -7,5 +7,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Charles Cunningham",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "jolocom-lib": "^3.0.0",
+    "serialport": "^7.1.5"
+  },
+  "devDependencies": {
+    "@types/node": "^12.7.5",
+    "@types/serialport": "^7.0.4",
+    "typescript": "^3.6.3"
+  }
 }
