@@ -1,0 +1,11 @@
+{
+  "name": "access-controller",
+  "version": "0.1.0",
+  "description": "A generic access controller based on SSI",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Charles Cunningham",
+  "license": "ISC"
+}
