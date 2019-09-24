@@ -13,6 +13,7 @@
     "serialport": "^7.1.5"
   },
   "devDependencies": {
+    "@serialport/list": "^1.1.5",
     "@types/node": "^12.7.5",
     "@types/serialport": "^7.0.4",
     "typescript": "^3.6.3"
