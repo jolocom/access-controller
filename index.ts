@@ -32,6 +32,12 @@ const handleResponse = (onValid: (jwt: JSONWebToken<CredentialResponse>) => void
       .then(_ => onValid(response))
       .catch(_ => onInvalid(response))
 
+
+const stagger = (fn: () => boolean, time_ms: number) =>
+    fn && setTimeout(stagger(fn, time_ms), time_ms)
+
+
+
 JolocomLib.registries.jolocom.create().authenticate(vkp, {
   derivationPath: JolocomLib.KeyTypes.jolocomIdentityKey,
   encryptionPass: pword
