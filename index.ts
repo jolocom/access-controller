@@ -23,19 +23,29 @@ const configPort = (sp: SP) => (cb: (line: string) => void) => sp.pipe(new SP.pa
 
 const openPort = (sp: SP) => (initialWrite: string) => sp.open(err => sp.write(initialWrite) && err ? console.error(err.toString()) : null)
 
+const parseAndHandle = (onValid, onInvalid) => idw => async (response: string) => console.log(response)//handleResponse(onValid, onInvalid)(idw)(JolocomLib.parse.interactionToken.fromJWT(response))
+
+const handleResponse = (onValid: (jwt: JSONWebToken<CredentialResponse>) => void,
+  onInvalid: (jwt: JSONWebToken<CredentialResponse>) => void) =>
+  (idw: IdentityWallet) => async (response: JSONWebToken<CredentialResponse>) =>
+    idw.validateJWT(response)
+      .then(_ => onValid(response))
+      .catch(_ => onInvalid(response))
+
 JolocomLib.registries.jolocom.create().authenticate(vkp, {
   derivationPath: JolocomLib.KeyTypes.jolocomIdentityKey,
   encryptionPass: pword
 }).then(async (idw) => {
-    console.log("id created")
 
-    SP.list()
-        .then(spInfos => spInfos.filter(info => info.comName.includes("/dev/tty.usbmodem"))
-              .map(setupPort)
-              .map(sp => configPort(sp)(console.log) && sp)
-              .map(openPort)
-              .map(write => write("henlo")))
-        .catch(err => err ? console.error(err.toString()) : null)
-
+  SP.list()
+    .then(spInfos => spInfos.filter(info => info.comName.includes("/dev/tty.usbmodem"))
+      .map(setupPort)
+      .map(sp => configPort(sp)(parseAndHandle(
+        jwt => console.log("valid"),
+        jwt => console.log("invalid")
+      )(idw)) && sp)
+      .map(openPort)
+      .map(async (write) => write("henlo".repeat(20))))
+    .catch(err => err ? console.error(err.toString()) : null)
 
 }).catch(console.error)
