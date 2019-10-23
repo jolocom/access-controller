@@ -12,7 +12,7 @@ const vkp = JolocomLib.KeyProvider.fromSeed(Buffer.from(seed, 'hex'), pword)
 const setupPort = (port: SP.PortInfo) => new SP(port.comName, {
   baudRate: 1000000,
   autoOpen: false,
-  rtscts: true
+  rtscts: false
 }, err => err ? console.error(err.toString()) : null)
 
 const configPort = (sp: SP) => (cb: (line: string) => void) => sp.pipe(new SP.parsers.Readline({
