@@ -7,5 +7,5 @@ port.stdout.pipe(printer)
 
 console.log('write')
 
-// port.write('henlo\n', err => console.error(err.message))
+port.stdin.write(Buffer.from('henlo\n', 'ascii'), err => console.error(err && err.message))
 console.log('end')

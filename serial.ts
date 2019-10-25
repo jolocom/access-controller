@@ -8,7 +8,7 @@ export const openPort = (baud: number, path: string) => {
     const minicomInstance = minicom(baud, path)
     console.log(minicomInstance.pid)
     return {
-        write: minicomInstance.stdin.write,
+        stdin: minicomInstance.stdin,
         stdout: minicomInstance.stdout,
         close: minicomInstance.kill
     }
