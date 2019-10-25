@@ -22,3 +22,7 @@ export const streamValidator = (validate: (jwt: string) => Promise<boolean>) =>
     encoding: 'ascii',
     includeDelimiter: false
     }).on("data", chunk => validate(chunk).then(validityCallback))
+
+export const printer = new Writable({
+    write: chunk => console.log(chunk)
+})
