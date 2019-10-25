@@ -10,7 +10,7 @@ export const openPort = (baud: number, path: string) => {
     return new Duplex({
         read: minicomInstance.stdout.read,
         write: minicomInstance.stdin.write,
-        destroy: (err, callback) => minicomInstance.kill()
+        // destroy: (err, callback) => minicomInstance.kill
     })
 }
 
@@ -18,11 +18,14 @@ const delimit = options => new parsers.Readline(options)
 
 export const streamValidator = (validate: (jwt: string) => Promise<boolean>) =>
     (validityCallback: (validity: boolean) => void) => delimit({
-    delimiter: '\n',
-    encoding: 'ascii',
-    includeDelimiter: false
+        delimiter: '\n',
+        encoding: 'ascii',
+        includeDelimiter: false
     }).on("data", chunk => validate(chunk).then(validityCallback))
 
 export const printer = new Writable({
-    write: chunk => console.log(chunk)
+    write: (chunk, encoding, cb) => {
+        console.log(chunk.toString())
+        cb()
+    }
 })
