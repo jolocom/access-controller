@@ -6,12 +6,12 @@ const minicom = (baud: number, path: string) => spawn('minicom', ['-b', `${baud}
 
 export const openPort = (baud: number, path: string) => {
     const minicomInstance = minicom(baud, path)
-
-    return new Duplex({
-        read: minicomInstance.stdout.read,
+    console.log(minicomInstance.pid)
+    return {
         write: minicomInstance.stdin.write,
-        // destroy: (err, callback) => minicomInstance.kill
-    })
+        stdout: minicomInstance.stdout,
+        close: minicomInstance.kill
+    }
 }
 
 const delimit = options => new parsers.Readline(options)
