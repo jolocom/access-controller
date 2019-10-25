@@ -1,7 +1,6 @@
 import { spawn } from 'child_process'
 import { Duplex, Writable } from 'stream'
 import { parsers } from 'serialport'
-import { JolocomLib } from 'jolocom-lib'
 
 const minicom = (baud: number, path: string) => spawn('minicom', ['-b', `${baud}`, '-o', '-D', path])
 
@@ -15,10 +14,11 @@ export const openPort = (baud: number, path: string) => {
     })
 }
 
-export const tokenDelimiter = options => new parsers.Readline(options)
+const delimit = options => new parsers.Readline(options)
 
-export const tokenValidation = (validityCallback: (validity: boolean) => void): Writable => new Writable({
-    write: (chunk: any, encoding: string, callback: (error?: Error) => void) =>
-        JolocomLib.util.validateDigestable(JolocomLib.parse.interactionToken.fromJWT(chunk))
-        .then(validityCallback)
-})
+export const streamValidator = (validate: (jwt: string) => Promise<boolean>) =>
+    (validityCallback: (validity: boolean) => void) => delimit({
+    delimiter: '\n',
+    encoding: 'ascii',
+    includeDelimiter: false
+    }).on("data", chunk => validate(chunk).then(validityCallback))
