@@ -1,14 +1,17 @@
 import { spawn } from 'child_process'
-import { Duplex } from 'stream'
+import { Duplex, Writable } from 'stream'
+import { parsers } from 'serialport'
+import { JolocomLib } from 'jolocom-lib'
 
 const minicom = (baud: number, path: string) => spawn('minicom', ['-b', `${baud}`, '-o', '-D', path])
 
 export const openPort = (baud: number, path: string) => {
-    const b = minicom(baud, path)
+    const minicomInstance = minicom(baud, path)
 
     return new Duplex({
-        read: b.stdout.read,
-        write: b.stdin.write
+        read: minicomInstance.stdout.read,
+        write: minicomInstance.stdin.write,
+        destroy: (err, callback) => minicomInstance.kill()
     })
 }
 
