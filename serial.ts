@@ -3,7 +3,7 @@ import { Duplex } from 'stream'
 
 const minicom = (baud: number, path: string) => spawn('minicom', ['-b', `${baud}`, '-o', '-D', path])
 
-const getPort = (baud: number, path: string) => {
+export const openPort = (baud: number, path: string) => {
     const b = minicom(baud, path)
 
     return new Duplex({
@@ -11,3 +11,11 @@ const getPort = (baud: number, path: string) => {
         write: b.stdin.write
     })
 }
+
+export const tokenDelimiter = options => new parsers.Readline(options)
+
+export const tokenValidation = (validityCallback: (validity: boolean) => void): Writable => new Writable({
+    write: (chunk: any, encoding: string, callback: (error?: Error) => void) =>
+        JolocomLib.util.validateDigestable(JolocomLib.parse.interactionToken.fromJWT(chunk))
+        .then(validityCallback)
+})
