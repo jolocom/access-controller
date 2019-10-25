@@ -1,9 +1,13 @@
 import { spawn } from 'child_process'
+import { Duplex } from 'stream'
 
 const minicom = (baud: number, path: string) => spawn('minicom', ['-b', `${baud}`, '-o', '-D', path])
 
-const board = minicom(115200, '/dev/tty.usbmodem0006835297371')
+const getPort = (baud: number, path: string) => {
+    const b = minicom(baud, path)
 
-board.stdout.on('data', d => console.log(d.toString()))
-
-board.stdin.write('henlo'.repeat(150) + '\n')
+    return new Duplex({
+        read: b.stdout.read,
+        write: b.stdin.write
+    })
+}
