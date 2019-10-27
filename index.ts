@@ -31,7 +31,7 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
         port.write(await idw.create.interactionTokens.request.auth({
             callbackURL: 'ble lol',
             description: 'ble lol'
-        }, pword).then(t => t.encode()))
+        }, pword).then(t => t.encode() + '\n'))
     })
 
 }).catch(console.error)
