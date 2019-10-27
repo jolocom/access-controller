@@ -8,7 +8,7 @@ const pword = "b".repeat(64)
 const vkp = JolocomLib.KeyProvider.fromSeed(Buffer.from(seed, 'hex'), pword)
 
 const setupPort = (port: string) => new SP(port, {
-    baudRate: 1000000,
+    baudRate: 115200,
     autoOpen: false,
     rtscts: false
 }, err => err ? console.error(err.toString()) : null)
