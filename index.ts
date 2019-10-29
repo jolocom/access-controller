@@ -20,11 +20,16 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
 
     const port = setupPort('/dev/ttyACM0')
 
-    port.pipe(streamValidator((jwt: string) => idw.validateJWT(JolocomLib.parse.interactionToken.fromJWT(jwt))
-                              .then(_ => true)
-                              .catch(_ => false))(valid => valid
-                                                  ? console.log("valid")
-                                                  : console.log("invalid")))
+    port.pipe(streamValidator((jwt: string) => {
+        console.log(jwt)
+        try {
+            return JolocomLib.util.validateDigestable(JolocomLib.parse.interactionToken.fromJWT(jwt))
+        } catch (err) {
+            return false
+        }
+    })(valid => valid
+       ? console.log("valid")
+       : console.log("invalid")))
 
     port.open(async err => {
         console.error(err)
