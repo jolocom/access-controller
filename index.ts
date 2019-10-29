@@ -25,7 +25,7 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
         try {
             return JolocomLib.util.validateDigestable(JolocomLib.parse.interactionToken.fromJWT(jwt))
         } catch (err) {
-            return false
+            return Promise.resolve(false)
         }
     })(valid => valid
        ? console.log("valid")
