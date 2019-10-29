@@ -8,35 +8,40 @@ const pword = "b".repeat(64)
 const vkp = JolocomLib.KeyProvider.fromSeed(Buffer.from(seed, 'hex'), pword)
 
 const setupPort = (port: string) => new SP(port, {
-    baudRate: 115200,
-    autoOpen: false,
-    rtscts: false
+  baudRate: 115200,
+  autoOpen: false,
+  rtscts: false
 }, err => err ? console.error(err.toString()) : null)
 
 JolocomLib.registries.jolocom.create().authenticate(vkp, {
-    derivationPath: JolocomLib.KeyTypes.jolocomIdentityKey,
-    encryptionPass: pword
+  derivationPath: JolocomLib.KeyTypes.jolocomIdentityKey,
+  encryptionPass: pword
 }).then(async (idw) => {
 
-    const port = setupPort('/dev/ttyACM0')
+  const port = setupPort('/dev/ttyACM0')
 
-    port.pipe(streamValidator((jwt: string) => {
-        console.log(jwt)
-        try {
-            return JolocomLib.util.validateDigestable(JolocomLib.parse.interactionToken.fromJWT(jwt))
-        } catch (err) {
-            return Promise.resolve(false)
-        }
-    })(valid => valid
-       ? console.log("valid")
-       : console.log("invalid")))
+  port.pipe(streamValidator((jwt: string) => {
+    console.log(jwt)
+    try {
+      return JolocomLib.util.validateDigestable(JolocomLib.parse.interactionToken.fromJWT(jwt))
+    } catch (err) {
+      return Promise.resolve(false)
+    }
+  })(async valid => {
+    valid
+      ? console.log("valid")
+      : console.log("invalid")
+    port.write(await idw.create.interactionTokens.request.auth({
+      callbackURL: 'new'
+    }, pword).then(t => t.encode() + '\n'))
+  }))
 
-    port.open(async err => {
-        console.error(err)
-        port.write(await idw.create.interactionTokens.request.auth({
-            callbackURL: 'ble lol',
-            description: 'ble lol'
-        }, pword).then(t => t.encode() + '\n'))
-    })
+  port.open(async err => {
+    console.error(err)
+    port.write(await idw.create.interactionTokens.request.auth({
+      callbackURL: 'ble lol',
+      description: 'ble lol'
+    }, pword).then(t => t.encode() + '\n'))
+  })
 
 }).catch(console.error)
