@@ -12,7 +12,9 @@ const credReqAttrs = (callback: string, issuer: string) => ({
     callbackURL: callback,
     credentialRequirements: [{
         type: ['accessKey'],
-        constraints: [constraintFunctions.is('issuer', issuer)]
+        constraints: [
+            // constraintFunctions.is('issuer', issuer)
+        ]
     }]
 })
 
