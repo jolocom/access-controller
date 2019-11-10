@@ -1,12 +1,15 @@
 import * as SP from 'serialport';
 import { streamValidator } from './serial'
-import { JolocomLib } from "jolocom-lib"
+import { JolocomLib } from 'jolocom-lib'
 import { constraintFunctions } from 'jolocom-lib/js/interactionTokens/credentialRequest'
+import { CredentialResponse } from 'jolocom-lib/js/interactionTokens/credentialResponse'
+import { InteractionType } from 'jolocom-lib/js/interactionTokens/types'
 
 const seed = "a".repeat(64)
 const pword = "b".repeat(64)
 
 const vkp = JolocomLib.KeyProvider.fromSeed(Buffer.from(seed, 'hex'), pword)
+const doorID = '1'
 
 const credReqAttrs = (callback: string, issuer: string) => ({
     callbackURL: callback,
@@ -33,10 +36,20 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
 
   port.pipe(streamValidator((jwt: string) => {
     console.log(jwt)
-    const token = JolocomLib.parse.interactionToken.fromJWT(jwt)
+    const token = JolocomLib.parse.interactionToken.fromJWT<CredentialResponse>(jwt)
+    if (token.interactionType !== InteractionType.CredentialResponse)
+      return Promise.resolve(false)
+
+    const accessCred = token.interactionToken.suppliedCredentials.find(c => c.type.includes('AccessKey', 1))
+
+    if (!accessCred || !accessCred.claim || !accessCred.claim.permissionCodes)
+      return Promise.resolve(false)
 
     try {
-      return JolocomLib.util.validateDigestable(token)
+      const access: string[] = (accessCred.claim.permissionCodes as string).split(', ')
+
+      if (!access.includes(doorID))
+        return JolocomLib.util.validateDigestable(token)
     } catch (err) {
       return Promise.resolve(false)
     }
