@@ -56,9 +56,11 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
       return Promise.resolve(false)
     }
   })(async valid => {
-    valid
-      ? console.log("valid")
-      : console.log("invalid")
+    if (valid) {
+      console.log("valid")
+    } else {
+      console.log("invalid")
+    }
     port.write(await idw.create.interactionTokens.request.share(
         credReqAttrs('https://henlo.com', 'did'),
         pword
