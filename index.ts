@@ -39,22 +39,19 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
     if (token.interactionType !== InteractionType.CredentialResponse)
       return Promise.resolve(false)
 
-    console.log(token)
-
     const accessCred = token.interactionToken.suppliedCredentials.find(c => c.type.includes('AccessKey', 1))
 
-    console.log(accessCred)
-    console.log(accessCred.claim)
-    
     if (!accessCred || !accessCred.claim || !accessCred.claim.token)
       return Promise.resolve(false)
 
     try {
-      const access: string[] = (accessCred.claim.token as string).split(', ')
+      const access: string[] = (accessCred.claim.token as string).split(',')
       console.log(access)
 
       if (!access.includes(doorID))
-        return JolocomLib.util.validateDigestable(token)
+         return Promise.resolve(false)
+      
+      return JolocomLib.util.validateDigestable(token)
     } catch (err) {
       return Promise.resolve(false)
     }
