@@ -35,7 +35,6 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
     console.log(jwt)
     const token = JolocomLib.parse.interactionToken.fromJWT(jwt)
 
-    if (token.interaction)
     try {
       return JolocomLib.util.validateDigestable(token)
     } catch (err) {
