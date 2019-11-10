@@ -46,11 +46,12 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
     console.log(accessCred)
     console.log(accessCred.claim)
     
-    if (!accessCred || !accessCred.claim || !accessCred.claim.permissionCodes)
+    if (!accessCred || !accessCred.claim || !accessCred.claim.token)
       return Promise.resolve(false)
 
     try {
-      const access: string[] = (accessCred.claim.permissionCodes as string).split(', ')
+      const access: string[] = (accessCred.claim.token as string).split(', ')
+      console.log(access)
 
       if (!access.includes(doorID))
         return JolocomLib.util.validateDigestable(token)
