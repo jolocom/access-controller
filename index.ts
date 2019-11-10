@@ -35,13 +35,17 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
   const port = setupPort('/dev/ttyACM0')
 
   port.pipe(streamValidator((jwt: string) => {
-    console.log(jwt)
     const token = JolocomLib.parse.interactionToken.fromJWT<CredentialResponse>(jwt)
     if (token.interactionType !== InteractionType.CredentialResponse)
       return Promise.resolve(false)
 
+    console.log(token)
+
     const accessCred = token.interactionToken.suppliedCredentials.find(c => c.type.includes('AccessKey', 1))
 
+    console.log(accessCred)
+    console.log(accessCred.claim)
+    
     if (!accessCred || !accessCred.claim || !accessCred.claim.permissionCodes)
       return Promise.resolve(false)
 
