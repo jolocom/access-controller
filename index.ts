@@ -11,7 +11,7 @@ const vkp = JolocomLib.KeyProvider.fromSeed(Buffer.from(seed, 'hex'), pword)
 const credReqAttrs = (callback: string, issuer: string) => ({
     callbackURL: callback,
     credentialRequirements: [{
-        type: ['accessKey'],
+        type: ['Credential', 'AccessKey'],
         constraints: [
             // constraintFunctions.is('issuer', issuer)
         ]
@@ -33,8 +33,11 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
 
   port.pipe(streamValidator((jwt: string) => {
     console.log(jwt)
+    const token = JolocomLib.parse.interactionToken.fromJWT(jwt)
+
+    if (token.interaction)
     try {
-      return JolocomLib.util.validateDigestable(JolocomLib.parse.interactionToken.fromJWT(jwt))
+      return JolocomLib.util.validateDigestable(token)
     } catch (err) {
       return Promise.resolve(false)
     }
@@ -43,7 +46,7 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
       ? console.log("valid")
       : console.log("invalid")
     port.write(await idw.create.interactionTokens.request.share(
-        credReqAttrs('https://google.com', 'did'),
+        credReqAttrs('https://henlo.com', 'did'),
         pword
     ).then(t => t.encode() + '\n'))
   }))
@@ -51,7 +54,7 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
   port.open(async err => {
     console.error(err)
     port.write(await idw.create.interactionTokens.request.share(
-        credReqAttrs('https://google.com', 'did'),
+        credReqAttrs('https://henlo.com', 'did'),
         pword
     ).then(t => t.encode() + '\n'))
   })
