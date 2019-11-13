@@ -5,7 +5,7 @@ import { CredentialResponse } from 'jolocom-lib/js/interactionTokens/credentialR
 import { InteractionType } from 'jolocom-lib/js/interactionTokens/types'
 import { IdentityWallet } from 'jolocom-lib/js/identityWallet/identityWallet';
 
-const seed = "a".repeat(64)
+const seed = "f".repeat(32) + '0'.repeat(32)
 const pword = "b".repeat(64)
 
 const vkp = JolocomLib.KeyProvider.fromSeed(Buffer.from(seed, 'hex'), pword)
