@@ -3,6 +3,7 @@ import { streamValidator } from './serial'
 import { JolocomLib } from 'jolocom-lib'
 import { CredentialResponse } from 'jolocom-lib/js/interactionTokens/credentialResponse'
 import { InteractionType } from 'jolocom-lib/js/interactionTokens/types'
+import { IdentityWallet } from 'jolocom-lib/js/identityWallet/identityWallet';
 
 const seed = "a".repeat(64)
 const pword = "b".repeat(64)
@@ -26,10 +27,20 @@ const setupPort = (port: string) => new SP(port, {
   rtscts: false
 }, err => err ? console.error(err.toString()) : null)
 
+const writeToken = (callbackURL: string, issuer: string) => (idw: IdentityWallet) => async (port: SP) => port.write(
+    await idw.create.interactionTokens.request.share(
+        credReqAttrs(callbackURL, issuer),
+        pword
+    ).then(t => t.encode() + '\n')
+)
+
 JolocomLib.registries.jolocom.create().authenticate(vkp, {
   derivationPath: JolocomLib.KeyTypes.jolocomIdentityKey,
   encryptionPass: pword
 }).then(async (idw) => {
+
+  // partially apply so we dont always need all the args (they never change)
+  const writeConstToken = writeToken('ble', 'did')(idw)
 
   // mapping of door IDs to serial ports
   const doorPorts = {
@@ -78,19 +89,13 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
         }
 
         // write a new request token to the relayer
-        port.write(await idw.create.interactionTokens.request.share(
-          credReqAttrs('ble', 'did'),
-          pword
-        ).then(t => t.encode() + '\n'))
+        writeConstToken(port)
       }))
 
       // write the initial request token on port opening
       port.open(async err => {
         if (err) console.error(err)
-        port.write(await idw.create.interactionTokens.request.share(
-          credReqAttrs('ble', 'did'),
-          pword
-        ).then(t => t.encode() + '\n'))
+        writeConstToken(port)
       })
 
     })
