@@ -5,10 +5,13 @@ import { CredentialResponse } from 'jolocom-lib/js/interactionTokens/credentialR
 import { InteractionType } from 'jolocom-lib/js/interactionTokens/types'
 import { IdentityWallet } from 'jolocom-lib/js/identityWallet/identityWallet';
 
-const seed = "f".repeat(32) + '0'.repeat(32)
-const pword = "b".repeat(64)
+import {
+    seed,
+    password,
+    doorMapping
+} from './config'
 
-const vkp = JolocomLib.KeyProvider.fromSeed(Buffer.from(seed, 'hex'), pword)
+const vkp = JolocomLib.KeyProvider.fromSeed(Buffer.from(seed, 'hex'), password)
 
 // Credential request definition
 const credReqAttrs = (callback: string, issuer: string) => ({
@@ -30,28 +33,22 @@ const setupPort = (port: string) => new SP(port, {
 const writeToken = (callbackURL: string, issuer: string) => (idw: IdentityWallet) => async (port: SP) => port.write(
     await idw.create.interactionTokens.request.share(
         credReqAttrs(callbackURL, issuer),
-        pword
+        password
     ).then(t => t.encode() + '\n')
 )
 
 JolocomLib.registries.jolocom.create().authenticate(vkp, {
   derivationPath: JolocomLib.KeyTypes.jolocomIdentityKey,
-  encryptionPass: pword
+  encryptionPass: password
 }).then(async (idw) => {
 
   // partially apply so we dont always need all the args (they never change)
   const writeConstToken = writeToken('ble', 'did')(idw)
 
-  // mapping of door IDs to serial ports
-  const doorPorts = {
-    '1': '/dev/ttyACM0',
-    '4': '/dev/ttyACM1'
-  }
-
   // for each doorID, open the corrosponding serial port
-  Object.keys(doorPorts)
+  Object.keys(doorMapping)
     .map(door => {
-      const port = setupPort(doorPorts[door])
+      const port = setupPort(doorMapping[door])
 
       // pipe the output of the port through the stream validator
       port.pipe(streamValidator((jwt: string) => {
