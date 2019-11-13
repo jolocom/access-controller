@@ -60,7 +60,7 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
         } else {
           console.log("invalid")
         }
-        p.write(await idw.create.interactionTokens.request.share(
+        port.write(await idw.create.interactionTokens.request.share(
           credReqAttrs('ble', 'did'),
           pword
         ).then(t => t.encode() + '\n'))
