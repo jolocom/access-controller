@@ -30,47 +30,49 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
   encryptionPass: pword
 }).then(async (idw) => {
 
-  const port = setupPort('/dev/ttyACM0')
+  const doorPorts = {
+    '1': '/dev/ttyACM0',
+    '4': '/dev/ttyACM1'
+  }
 
-  port.pipe(streamValidator((jwt: string) => {
-    const token = JolocomLib.parse.interactionToken.fromJWT<CredentialResponse>(jwt)
-    if (token.interactionType !== InteractionType.CredentialResponse)
-      return Promise.resolve(false)
+  Object.keys(doorPorts)
+    .map(door => {
+      const port = setupPort(doorPorts[door])
+      port.pipe(streamValidator((jwt: string) => {
+        const token = JolocomLib.parse.interactionToken.fromJWT<CredentialResponse>(jwt)
+        if (token.interactionType !== InteractionType.CredentialResponse)
+          return Promise.resolve(false)
+        const accessCred = token.interactionToken.suppliedCredentials.find(c => c.type.includes('AccessKey', 1))
+        if (!accessCred || !accessCred.claim || !accessCred.claim.token)
+          return Promise.resolve(false)
+        try {
+          const access: string[] = (accessCred.claim.token as string).split(',')
+          console.log(access)
+          if (!access.includes(door))
+            return Promise.resolve(false)
+          return JolocomLib.util.validateDigestable(token)
+        } catch (err) {
+          return Promise.resolve(false)
+        }
+      })(async valid => {
+        if (valid) {
+          console.log("valid")
+        } else {
+          console.log("invalid")
+        }
+        p.write(await idw.create.interactionTokens.request.share(
+          credReqAttrs('ble', 'did'),
+          pword
+        ).then(t => t.encode() + '\n'))
+      }))
 
-    const accessCred = token.interactionToken.suppliedCredentials.find(c => c.type.includes('AccessKey', 1))
+      port.open(async err => {
+        console.error(err)
+        port.write(await idw.create.interactionTokens.request.share(
+          credReqAttrs('ble', 'did'),
+          pword
+        ).then(t => t.encode() + '\n'))
+      })
 
-    if (!accessCred || !accessCred.claim || !accessCred.claim.token)
-      return Promise.resolve(false)
-
-    try {
-      const access: string[] = (accessCred.claim.token as string).split(',')
-      console.log(access)
-
-      if (!access.includes(doorID))
-         return Promise.resolve(false)
-      
-      return JolocomLib.util.validateDigestable(token)
-    } catch (err) {
-      return Promise.resolve(false)
-    }
-  })(async valid => {
-    if (valid) {
-      console.log("valid")
-    } else {
-      console.log("invalid")
-    }
-    port.write(await idw.create.interactionTokens.request.share(
-        credReqAttrs('https://henlo.com', 'did'),
-        pword
-    ).then(t => t.encode() + '\n'))
-  }))
-
-  port.open(async err => {
-    console.error(err)
-    port.write(await idw.create.interactionTokens.request.share(
-        credReqAttrs('https://henlo.com', 'did'),
-        pword
-    ).then(t => t.encode() + '\n'))
-  })
-
+    })
 }).catch(console.error)
