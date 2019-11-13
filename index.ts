@@ -1,7 +1,6 @@
 import * as SP from 'serialport';
 import { streamValidator } from './serial'
 import { JolocomLib } from 'jolocom-lib'
-import { constraintFunctions } from 'jolocom-lib/js/interactionTokens/credentialRequest'
 import { CredentialResponse } from 'jolocom-lib/js/interactionTokens/credentialResponse'
 import { InteractionType } from 'jolocom-lib/js/interactionTokens/types'
 
@@ -9,16 +8,15 @@ const seed = "a".repeat(64)
 const pword = "b".repeat(64)
 
 const vkp = JolocomLib.KeyProvider.fromSeed(Buffer.from(seed, 'hex'), pword)
-const doorID = '1'
 
 const credReqAttrs = (callback: string, issuer: string) => ({
-    callbackURL: callback,
-    credentialRequirements: [{
-        type: ['Credential', 'AccessKey'],
-        constraints: [
-            // constraintFunctions.is('issuer', issuer)
-        ]
-    }]
+  callbackURL: callback,
+  credentialRequirements: [{
+    type: ['Credential', 'AccessKey'],
+    constraints: [
+      // constraintFunctions.is('issuer', issuer)
+    ]
+  }]
 })
 
 const setupPort = (port: string) => new SP(port, {
