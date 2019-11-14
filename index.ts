@@ -52,7 +52,7 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
 
       // pipe the output of the port through the stream validator
       port.pipe(streamValidator((jwt: string) => {
-
+        console.log(`token received: ${Date.now()}`)
         // parse the recieved token and ensure it's a credential response
         const token = JolocomLib.parse.interactionToken.fromJWT<CredentialResponse>(jwt)
 
@@ -79,6 +79,7 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
         }
       })(async valid => {
         // act on the validity of the token recieved
+        console.log(`validity determined: ${Date.now()}`)
         if (valid) {
           console.log(`Door ${door} valid`)
         } else {
