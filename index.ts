@@ -4,7 +4,7 @@ import { JolocomLib } from 'jolocom-lib'
 import { CredentialResponse } from 'jolocom-lib/js/interactionTokens/credentialResponse'
 import { InteractionType } from 'jolocom-lib/js/interactionTokens/types'
 import { IdentityWallet } from 'jolocom-lib/js/identityWallet/identityWallet';
-import { Gpio } from 'onoff'
+import { showSuccess, showFailure } from './leds'
 
 import {
     seed,
@@ -12,22 +12,6 @@ import {
     doorMapping,
     desiredIssuer
 } from './config'
-
-const demoLED = new Gpio(16, 'out')
-
-const blinkRepeat = led => time => n => {
-  // turn led on
-  led.write(0)
-  setTimeout(_ => {
-    // turn led off
-    led.write(1)
-    // repeat
-    if (n > 0) setTimeout(_ => blinkRepeat(led)(time)(n - 1), time)
-  }, time)
-}
-
-const showSuccess = () => blinkRepeat(demoLED)(500)(3)
-const showFailure = () => blinkRepeat(demoLED)(500)(1)
 
 const vkp = JolocomLib.KeyProvider.fromSeed(Buffer.from(seed, 'hex'), password)
 
