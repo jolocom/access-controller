@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "jolocom-lib": "^3.0.0",
+    "onoff": "^5.0.0",
     "serialport": "7"
   },
   "devDependencies": {
