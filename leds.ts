@@ -1,36 +1,6 @@
 import { Gpio } from 'onoff'
 
-// const validLED = new Gpio(16, 'out')
-// const invalidLED = new Gpio(2, 'out')
-
-let r = (s, e) => Array.from('x'.repeat(e - s), (_, i) => s + i);
-
-const leds = r(0, 50).map(n => {
-    try {
-        new Gpio(n, 'out')
-    } catch {
-        console.log(n)
-    }
-})
-
-const blink = l => {
-    l.map((led: Gpio, i) => {
-        try {
-            led.write(1)
-        } catch {
-            console.log(i)
-        }
-    })
-    setTimeout(_ => l.map((led: Gpio, i) => {
-        try {
-            led.write(0)
-        } catch {
-            console.log(i)
-        }
-    }), 1000)
-}
-
-blink(leds)
+const LED = new Gpio(29, 'out')
 
 const blinkRepeat = led => time => n => {
   // turn led on
@@ -43,6 +13,6 @@ const blinkRepeat = led => time => n => {
   }, time)
 }
 
-// export const showSuccess = () => blinkRepeat(validLED)(500)(3)
-// export const showFailure = () => blinkRepeat(invalidLED)(500)(3)
+export const showSuccess = () => blinkRepeat(LED)(500)(3)
+export const showFailure = () => blinkRepeat(LED)(500)(1)
 
