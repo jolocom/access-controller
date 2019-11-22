@@ -7,8 +7,24 @@ let r = (s, e) => Array.from('x'.repeat(e - s), (_, i) => s + i);
 
 const leds = r(0, 50).map(n => new Gpio(n, 'out'))
 
-leds.map(led => led.write(1))
-setTimeout(_ => leds.map(led => led.write(0)), 1000)
+const blink = l => {
+    l.map((led: Gpio, i) => {
+        try {
+            led.write(1)
+        } catch {
+            console.log(i)
+        }
+    })
+    setTimeout(_ => l.map((led: Gpio, i) => {
+        try {
+            led.write(0)
+        } catch {
+            console.log(i)
+        }
+    }), 1000)
+}
+
+blink(leds)
 
 const blinkRepeat = led => time => n => {
   // turn led on
