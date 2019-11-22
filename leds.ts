@@ -5,7 +5,13 @@ import { Gpio } from 'onoff'
 
 let r = (s, e) => Array.from('x'.repeat(e - s), (_, i) => s + i);
 
-const leds = r(0, 50).map(n => new Gpio(n, 'out'))
+const leds = r(0, 50).map(n => {
+    try {
+        new Gpio(n, 'out')
+    } catch {
+        console.log(n)
+    }
+})
 
 const blink = l => {
     l.map((led: Gpio, i) => {
