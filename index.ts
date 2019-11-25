@@ -4,11 +4,13 @@ import { JolocomLib } from 'jolocom-lib'
 import { CredentialResponse } from 'jolocom-lib/js/interactionTokens/credentialResponse'
 import { InteractionType } from 'jolocom-lib/js/interactionTokens/types'
 import { IdentityWallet } from 'jolocom-lib/js/identityWallet/identityWallet';
+import { showSuccess, showFailure } from './leds'
 
 import {
     seed,
     password,
-    doorMapping
+    doorMapping,
+    desiredIssuer
 } from './config'
 
 const vkp = JolocomLib.KeyProvider.fromSeed(Buffer.from(seed, 'hex'), password)
@@ -19,7 +21,7 @@ const credReqAttrs = (callback: string, issuer: string) => ({
   credentialRequirements: [{
     type: ['Credential', 'AccessKey'],
     constraints: [
-      // constraintFunctions.is('issuer', issuer)
+      JolocomLib.util.constraintFunctions.is('issuer', issuer)
     ]
   }]
 })
@@ -43,7 +45,7 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
 }).then(async (idw) => {
 
   // partially apply so we dont always need all the args (they never change)
-  const writeConstToken = writeToken('ble', 'did')(idw)
+  const writeConstToken = writeToken('ble', desiredIssuer)(idw)
 
   // for each doorID, open the corrosponding serial port
   Object.keys(doorMapping)
@@ -81,8 +83,10 @@ JolocomLib.registries.jolocom.create().authenticate(vkp, {
         // act on the validity of the token recieved
         if (valid) {
           console.log(`Door ${door} valid`)
+          showSuccess()
         } else {
           console.log(`Door ${door} invalid`)
+          showFailure()
         }
 
         // write a new request token to the relayer
